@@ -1,33 +1,31 @@
-# TaskFlow
+# Moving work across the board
 
-A small Vite + React team task board for Meridian Labs.
-
-## Task brief
-
-Render the three columns — To Do, In Progress, Done — and let someone create a card, edit it, and say who it belongs to.
+Let a card move between columns, and make the board usable by more than one person at a time.
 
 ## Done when
 
-- Three columns render. A card can be created with a title, edited afterwards, and associated with a person.
+- A card can be moved between all three columns and the move persists. Two people working at once do not overwrite each other.
+
+## How to submit
+
+1. `git checkout -b task`
+2. Build it, committing as you go — small commits, clear messages.
+3. `git push -u origin task`
+4. Open a pull request, then paste its URL back into OpenExp.
+
+Your checks run automatically when you open the pull request.
 
 ## Run locally
-
-Install dependencies and start the Vite development server:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Cards are stored in the browser's local storage so creating, editing, assigning, and moving cards remain available on reload.
-
-## Included
-
-- To Do, In Progress, and Done columns
-- Create and edit cards
-- Assign cards to a team member or leave them unassigned
-- Move cards between columns immediately
-- Responsive layout for browser-sized screens
+The board uses the browser's shared local storage plus `BroadcastChannel` to
+keep open board sessions synchronized. Each create, edit, and move reads the
+latest shared card list before writing, so independent updates are not based
+on stale React state.
 
 ## Build
 

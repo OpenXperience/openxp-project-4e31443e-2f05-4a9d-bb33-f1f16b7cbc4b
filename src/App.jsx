@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "taskflow-cards";
+const CHANNEL_NAME = "taskflow-board";
 const statuses = [
   { id: "todo", label: "To Do" },
   { id: "in-progress", label: "In Progress" },
@@ -19,6 +20,21 @@ function readCards() {
   } catch {
     return initialCards;
   }
+}
+
+function readSharedCards() {
+  return readCards();
+}
+
+function writeSharedCards(cards) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+}
+
+function updateSharedCards(update) {
+  const latestCards = readSharedCards();
+  const nextCards = update(latestCards);
+  writeSharedCards(nextCards);
+  return nextCards;
 }
 
 function CardDialog({ card, onClose, onSave }) {
@@ -87,17 +103,52 @@ export default function App() {
   const [cards, setCards] = useState(readCards);
   const [editingCard, setEditingCard] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
+  const channelRef = useRef(null);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
-  }, [cards]);
+    const handleStorageChange = (event) => {
+      if (event.key === STORAGE_KEY && event.newValue) {
+        setCards(JSON.parse(event.newValue));
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    if ("BroadcastChannel" in window) {
+      const channel = new BroadcastChannel(CHANNEL_NAME);
+      channelRef.current = channel;
+      channel.addEventListener("message", ({ data }) => {
+        if (data?.type === "cards-updated" && Array.isArray(data.cards)) {
+          setCards(data.cards);
+        }
+      });
+      return () => {
+        window.removeEventListener("storage", handleStorageChange);
+        channel.close();
+      };
+    }
+
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  function publishCards(nextCards) {
+    setCards(nextCards);
+    channelRef.current?.postMessage({ type: "cards-updated", cards: nextCards });
+  }
 
   function saveCard(details) {
-    setCards((current) => editingCard
+    const nextCards = updateSharedCards((current) => editingCard
       ? current.map((card) => card.id === editingCard.id ? { ...card, ...details } : card)
       : [...current, { id: crypto.randomUUID(), ...details }]);
+    publishCards(nextCards);
     setEditingCard(null);
     setIsCreating(false);
+  }
+
+  function moveCard(id, status) {
+    const nextCards = updateSharedCards((current) =>
+      current.map((card) => card.id === id ? { ...card, status } : card),
+    );
+    publishCards(nextCards);
   }
 
   function closeDialog() {
@@ -113,7 +164,10 @@ export default function App() {
           <h1>TaskFlow</h1>
           <p className="subtitle">Keep the team’s work moving.</p>
         </div>
-        <button className="primary-button" type="button" onClick={() => setIsCreating(true)}>+ New card</button>
+        <div className="header-actions">
+          <span className="sync-status"><span aria-hidden="true">●</span> Live sync on</span>
+          <button className="primary-button" type="button" onClick={() => setIsCreating(true)}>+ New card</button>
+        </div>
       </header>
       <section className="board" aria-label="Task board">
         {statuses.map((column) => {
@@ -125,7 +179,7 @@ export default function App() {
                 <span className="count">{columnCards.length}</span>
               </div>
               <div className="card-list">
-                {columnCards.map((card) => <TaskCard key={card.id} card={card} onEdit={setEditingCard} onMove={(id, status) => setCards((current) => current.map((item) => item.id === id ? { ...item, status } : item))} />)}
+                {columnCards.map((card) => <TaskCard key={card.id} card={card} onEdit={setEditingCard} onMove={moveCard} />)}
               </div>
             </div>
           );
