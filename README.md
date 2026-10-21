@@ -14,3 +14,21 @@ Let a card move between columns, and make the board usable by more than one pers
 4. Open a pull request, then paste its URL back into OpenExp.
 
 Your checks run automatically when you open the pull request.
+
+## Run locally
+
+```bash
+npm install
+npm run dev
+```
+
+The board uses the browser's shared local storage plus `BroadcastChannel` to
+keep open board sessions synchronized. Each create, edit, and move reads the
+latest shared card list before writing, so independent updates are not based
+on stale React state.
+
+## Build
+
+```bash
+npm run build
+```
