@@ -1,2 +1,15 @@
-# openxp-project-4e31443e-2f05-4a9d-bb33-f1f16b7cbc4b
-OpenXP provisioning:7c614ad0-aa70-421f-8159-2e3507c04883
+# TaskFlow
+
+A small, browser-based team task board for Meridian Labs.
+
+## Run locally
+
+Open `index.html` in a browser. Cards are stored in the browser's local storage so creating, editing, assigning, and moving cards remain available on reload.
+
+## Included
+
+- To Do, In Progress, and Done columns
+- Create and edit cards
+- Assign cards to a team member or leave them unassigned
+- Move cards between columns immediately
+- Responsive layout for browser-sized screens
