@@ -2,6 +2,14 @@
 
 A small Vite + React team task board for Meridian Labs.
 
+## Task brief
+
+Render the three columns — To Do, In Progress, Done — and let someone create a card, edit it, and say who it belongs to.
+
+## Done when
+
+- Three columns render. A card can be created with a title, edited afterwards, and associated with a person.
+
 ## Run locally
 
 Install dependencies and start the Vite development server:
