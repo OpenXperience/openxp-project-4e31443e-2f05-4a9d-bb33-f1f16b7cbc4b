@@ -1,2 +1,16 @@
-# openxp-project-4e31443e-2f05-4a9d-bb33-f1f16b7cbc4b
-OpenXP provisioning:7c614ad0-aa70-421f-8159-2e3507c04883
+# The board and its cards
+
+Render the three columns — To Do, In Progress, Done — and let someone create a card, edit it, and say who it belongs to.
+
+## Done when
+
+- Three columns render. A card can be created with a title, edited afterwards, and associated with a person.
+
+## How to submit
+
+1. `git checkout -b task`
+2. Build it, committing as you go — small commits, clear messages.
+3. `git push -u origin task`
+4. Open a pull request, then paste its URL back into OpenExp.
+
+Your checks run automatically when you open the pull request.
